@@ -5,15 +5,39 @@ import json
 # INPUT PARAMS
     
 org_id = ""
-target_name = ""
-target_ref = ""
 
 
 HEADERS = {
         'accept': '*/*',
-        'authorization': 'token xxx',  # Replace with your actual API key
+        'authorization': 'token 01959aaa-f781-4dec-b29b-587610de46b3',  # Replace with your actual API key
 }
 
+def get_org_ids():
+    ids = []
+    # Make the first API request to get org IDs
+    api_url = f"https://api.snyk.io/rest/orgs"
+    api_params = {
+        'version': '2024-01-04~experimental',
+        'limit': '100'
+    }
+
+
+    response = requests.get(api_url, params=api_params, headers=HEADERS)
+    response_data = response.json()
+    orgs = response_data["data"]
+    
+
+    for org in orgs:
+        id = org["id"]
+        # response_data.get('data', [])[i].get('id')
+        # slug = response_data.get('data', [])[i].get('attributes').get('slug')
+        # for org_name in org_name_list: 
+        #     if slug == org_name: 
+        # id = response_data.get('data', [])[i].get('id')
+        ids.append(id)
+    
+    print(ids)
+    return ids 
 def list_integration_id(orgId):
     # https://snyk.docs.apiary.io/#reference/integrations/integrations/list
     url = f'https://api.snyk.io/v1/org/{orgId}/integrations'
@@ -26,7 +50,7 @@ def list_integration_id(orgId):
 def find_id(integration_ids):
     print(integration_ids)
     for name, id in integration_ids.items(): 
-        if name == "github": 
+        if name == "github-enterprise": 
             return id
 
 def enable_pr_check_org(orgId,integrationId):
@@ -38,7 +62,7 @@ def enable_pr_check_org(orgId,integrationId):
         "pullRequestInheritance": "custom",
         "pullRequestTestCodeEnabled": True,
         "pullRequestFailOnAnyCodeIssues": False,
-        "pullRequestTestCodeSeverity": "medium",
+        "pullRequestTestCodeSeverity": "high",
         "pullRequestTestEnabled": True,
         "pullRequestFailOnAnyVulns": False,
         "pullRequestFailOnlyForHighSeverity": True,
@@ -50,6 +74,9 @@ def enable_pr_check_org(orgId,integrationId):
 
 
 # driver code 
-integration_ids = list_integration_id(org_id)
-ghe_id = find_id(integration_ids)
-enable_pr_check_org(org_id,ghe_id)
+ids_ = get_org_ids()
+
+for id in ids_: 
+    integration_ids = list_integration_id(id)
+    ghe_id = find_id(integration_ids)
+    enable_pr_check_org(id,ghe_id)
