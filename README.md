@@ -10,6 +10,6 @@ enables both OS and Code PR checks at the project level
 
 # enable_integration_settings.py 
 
-enables both OS and Code PR checks for SCM integration settings at the org level 
+enables both OS and Code PR checks for SCM integration settings at the org level - for all orgs
 
-currently it is searching for the GH id, but this can be modified to any SCM integration
+currently it is searching for the GHE id, but this can be modified to any SCM integration
