@@ -4,40 +4,55 @@ import json
 
 # INPUT PARAMS
     
-org_id = ""
-
+BASE_URL = "https://api.snyk.io"
+SNYK_TOKEN = ""
 
 HEADERS = {
         'accept': '*/*',
-        'authorization': 'token 01959aaa-f781-4dec-b29b-587610de46b3',  # Replace with your actual API key
+        'authorization': f'token {SNYK_TOKEN}',  # Replace with your actual API key
 }
 
-def get_org_ids():
-    ids = []
-    # Make the first API request to get org IDs
-    api_url = f"https://api.snyk.io/rest/orgs"
+def get_orgs_page(next_url):
+
+    # Add "next url" on to the BASE URL
+    url = BASE_URL + next_url
+
     api_params = {
         'version': '2024-01-04~experimental',
         'limit': '100'
     }
 
+    # return requests.request("GET", url, headers=headers)
+    return requests.get(url, params=api_params, headers=HEADERS)
 
-    response = requests.get(api_url, params=api_params, headers=HEADERS)
-    response_data = response.json()
-    orgs = response_data["data"]
+def get_org_data():
+    org_data = []
+    # Make the first API request to get org IDs
+    next_url = f"/rest/orgs"
     
 
+    while next_url is not None:
+        res = get_orgs_page(next_url).json()
+
+        if 'links' in res and 'next' in res['links']:
+            next_url = res['links']['next']
+        else:
+            next_url = None
+
+        # add to list
+        if 'data' in res:
+            org_data.extend(res['data'])
+
+    return org_data 
+
+def get_org_ids(orgs):
+    ids = []
     for org in orgs:
         id = org["id"]
-        # response_data.get('data', [])[i].get('id')
-        # slug = response_data.get('data', [])[i].get('attributes').get('slug')
-        # for org_name in org_name_list: 
-        #     if slug == org_name: 
-        # id = response_data.get('data', [])[i].get('id')
         ids.append(id)
     
-    print(ids)
-    return ids 
+    return ids
+
 def list_integration_id(orgId):
     # https://snyk.docs.apiary.io/#reference/integrations/integrations/list
     url = f'https://api.snyk.io/v1/org/{orgId}/integrations'
@@ -74,7 +89,8 @@ def enable_pr_check_org(orgId,integrationId):
 
 
 # driver code 
-ids_ = get_org_ids()
+org_data_ = get_org_data()
+ids_ = get_org_ids(org_data_)
 
 for id in ids_: 
     integration_ids = list_integration_id(id)
