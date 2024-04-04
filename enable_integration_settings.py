@@ -74,7 +74,6 @@ def enable_pr_check_org(orgId,integrationId):
     url = f'https://api.snyk.io/v1/org/{orgId}/integrations/{integrationId}/settings'
 
     values ={
-        "pullRequestInheritance": "custom",
         "pullRequestTestCodeEnabled": True,
         "pullRequestFailOnAnyCodeIssues": False,
         "pullRequestTestCodeSeverity": "high",
