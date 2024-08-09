@@ -65,7 +65,7 @@ def list_integration_id(orgId):
 def find_id(integration_ids):
     print(integration_ids)
     for name, id in integration_ids.items(): 
-        if name == "github-enterprise": 
+        if name == "azure-repos": 
             return id
 
 def enable_pr_check_org(orgId,integrationId):
